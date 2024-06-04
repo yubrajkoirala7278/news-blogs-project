@@ -1204,3 +1204,6 @@ h6 {
   font-size: 13px;
   color: #012970;
 }
+div.dataTables_wrapper div.dataTables_length select {
+  width: 50px;
+}
