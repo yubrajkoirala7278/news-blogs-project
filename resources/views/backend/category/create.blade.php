@@ -13,11 +13,6 @@
                         <input type="text" class="form-control" id="category" name="category">
                         <span class="text-danger text-sm" id="create-category-error"></span>
                     </div>
-                    <div class="mb-3">
-                        <label for="slug" class="form-label">Slug</label>
-                        <input type="text" class="form-control" id="slug" name="slug">
-                        <span class="text-danger text-sm" id="create-slug-error"></span>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">

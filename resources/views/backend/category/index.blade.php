@@ -9,7 +9,7 @@
                 <i class="fa-solid fa-circle-plus fs-4"></i>
             </button>
         </div>
-        {{-- create  --}}
+        {{-- create --}}
         @include('backend.category.create')
 
 
@@ -19,12 +19,17 @@
                 <tr>
                     <th>No</th>
                     <th>Category</th>
+                    <th>Slug</th>
                     <th width="280px">Action</th>
                 </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
+
+
+        {{-- edit category --}}
+        @include('backend.category.edit')
     </div>
 @endsection
 
@@ -40,25 +45,16 @@
             // ============================
 
 
-
-            // =========reset form===========
-            function resetForm() {
-                $('#create-category-error').html('');
-                $('#create-slug-error').html('');
-                $('#ajaxForm')[0].reset();
-            }
-            // ============================
-
-
-
             // ========adding data to db=========
             $('#create-category-btn').click(function() {
-                resetForm();
+                $('#create-category-error').html('');
+                $('#ajaxForm')[0].reset();
             });
 
             var createFormData = $('#ajaxForm')[0];
             $('#saveBtn').click(function() {
                 var formData = new FormData(createFormData);
+                $('#create-category-error').html('');
                 $.ajax({
                     url: "{{ route('category.store') }}",
                     method: 'POST',
@@ -68,6 +64,7 @@
 
                     success: function(response) {
                         $('#createCategory').modal('hide');
+                        table.draw();
                         toastify().success(response[1]);
                     },
                     error: function(err) {
@@ -75,8 +72,6 @@
                         if (errorMessage) {
                             errorMessage.category ? $('#create-category-error').html(
                                 errorMessage.category[0]) : '';
-                            errorMessage.slug ? $('#create-slug-error').html(errorMessage.slug[
-                                0]) : '';
                         } else {
                             toastify().error('Something went wrong!');
                         }
@@ -90,8 +85,8 @@
             var table = $('#category-table').DataTable({
                 processing: true,
                 serverSide: true,
-                deferRender:true,
-                searchDelay:3000,
+                deferRender: true,
+                searchDelay: 3000,
                 ajax: "{{ route('category.index') }}",
                 columns: [{
                         data: 'DT_RowIndex',
@@ -102,6 +97,10 @@
                         name: 'category'
                     },
                     {
+                        data: 'slug',
+                        name: 'slug'
+                    },
+                    {
                         data: 'action',
                         name: 'action',
                         orderable: false,
@@ -110,6 +109,71 @@
                 ]
             });
             // =======================================
+
+
+            // ================delete category=========
+            $('body').on('click', '.deleteCategory', function() {
+                var category_id = $(this).data("slug");
+                confirm("Are You sure want to delete !");
+                $.ajax({
+                    type: "DELETE",
+                    url: "{{ url('admin/category/', '') }}" + '/' + category_id,
+                    success: function(response) {
+                        table.draw();
+                        toastify().success(response[1]);
+                    },
+                    error: function(data) {
+                        console.log('Error:', data);
+                    }
+                });
+            });
+            // =======================================
+
+            // =============fill the current data to form for updation==========
+            let slug = '';
+            $('body').on('click', '.editCategory', function() {
+                // get form slug
+                slug = $(this).data('slug');
+                $('#edit-category-error').html('');
+
+                $.ajax({
+                    url: '{{ url('admin/category', '') }}' + '/' + slug + '/edit',
+                    method: 'GET',
+                    success: function(response) {
+                        console.log(response.category);
+                        $('#editCategory').modal('show');
+                        $('#edit-category').val(response.category);
+                    }
+                })
+            })
+            // ================================================================
+
+            // =================updating category=================
+            var updateFormData = $('#ajaxFormUpdate')[0];
+            $('#updateBtn').click(function() {
+                var formUpdateData = new FormData(updateFormData);
+                $.ajax({
+                    url: '{{ url('admin/category/', '') }}' + '/' + slug,
+                    method: 'POST',
+                    processData: false,
+                    contentType: false,
+                    data: formUpdateData,
+                    success: function(response) {
+                        $('#editCategory').modal('hide');
+                        table.draw();
+                    },
+                    error: function(err) {
+                        let errorMessage = err.responseJSON.errors;
+                        if (errorMessage) {
+                            errorMessage.category ? $('#edit-category-error').html(
+                                errorMessage.category[0]) : '';
+                        } else {
+                            toastify().error('Something went wrong!');
+                        }
+                    }
+                })
+            });
+            // ===================================================
         });
     </script>
 @endsection

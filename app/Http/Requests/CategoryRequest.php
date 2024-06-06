@@ -24,7 +24,6 @@ class CategoryRequest extends FormRequest
     {
         return [
             'category'=>['required',Rule::unique('categories')->ignore($this->category)],
-            'slug'=>['required',Rule::unique('categories')->ignore($this->category)],
         ];
     }
 }

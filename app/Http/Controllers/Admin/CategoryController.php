@@ -12,7 +12,8 @@ use Yajra\DataTables\Facades\DataTables;
 class CategoryController extends Controller
 {
     private $categoryService;
-    public function __construct() {
+    public function __construct()
+    {
         $this->categoryService = new CategoryService();
     }
     /**
@@ -20,23 +21,23 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $category = Category::latest()->get();
-            return DataTables::of($category)
+        try {
+            if ($request->ajax()) {
+                $data = Category::latest()->get();
+                return Datatables::of($data)
                     ->addIndexColumn()
-                    ->addColumn('action', function($row){
-   
-                           $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->slug.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editCategory">Edit</a>';
-   
-                           $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->slug.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteCategory">Delete</a>';
-    
-                            return $btn;
+                    ->addColumn('action', function ($row) {
+                        $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-slug="' . $row->slug . '" data-original-title="Edit" class="edit btn btn-primary btn-sm editCategory">Edit</a>';
+                        $btn = $btn . ' <a href="javascript:void(0)" data-toggle="tooltip"  data-slug="' . $row->slug . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteCategory">Delete</a>';
+                        return $btn;
                     })
                     ->rawColumns(['action'])
                     ->make(true);
+            }
+            return view('backend.category.index');
+        } catch (\Throwable $th) {
+            return response()->json(['error', 'Something went wrong!']);
         }
-      
-        return view('backend.category.index');
     }
 
     /**
@@ -52,13 +53,13 @@ class CategoryController extends Controller
      */
     public function store(CategoryRequest $request)
     {
-       try{
+        try {
             $this->categoryService->addServive($request->validated());
-            return response()->json(['success','Category added successfully']);
-       }catch(\Throwable $th){
-        return response()->json(['error','Something went wrong!']);
-        // return response()->json(['error',$th->getMessage()]);
-       }
+            return response()->json(['success', 'Category added successfully']);
+        } catch (\Throwable $th) {
+            return response()->json(['error', 'Something went wrong!']);
+            // return response()->json(['error',$th->getMessage()]);
+        }
     }
 
     /**
@@ -72,24 +73,38 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Category $category)
     {
-       
+        try {
+            return $category;
+        } catch (\Throwable $th) {
+            return response()->json(['error', 'Something went wrong!']);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CategoryRequest $request, Category $category)
     {
-        //
+        try {
+            $this->categoryService->updateService($request->except('_method'), $category);
+            return response()->json(['success', 'Category updated successfully']);
+        } catch (\Throwable $th) {
+            return response()->json(['error', 'Something went wrong!']);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
-       
+        try {
+            $category->delete();
+            return response()->json(['success', 'Category deleted successfully']);
+        } catch (\Throwable $th) {
+            return response()->json(['error', 'Something went wrong!']);
+        }
     }
 }
