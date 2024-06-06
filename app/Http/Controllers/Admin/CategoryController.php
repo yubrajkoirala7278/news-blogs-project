@@ -3,29 +3,39 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
+use App\Service\CategoryService;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
 {
+    private $categoryService;
+    public function __construct() {
+        $this->categoryService = new CategoryService();
+    }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = Category::latest()->get();
-            return DataTables::of($data)
-                ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="' . $row->id . '" data-original-title="Edit"  class="edit btn btn-primary btn-sm editCategory">Edit</a>';
-                    $btn = $btn . ' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="' . $row->id . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteCategory">Delete</a>';
-                    return $btn;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            $category = Category::latest()->get();
+            return DataTables::of($category)
+                    ->addIndexColumn()
+                    ->addColumn('action', function($row){
+   
+                           $btn = '<a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->slug.'" data-original-title="Edit" class="edit btn btn-primary btn-sm editCategory">Edit</a>';
+   
+                           $btn = $btn.' <a href="javascript:void(0)" data-toggle="tooltip"  data-id="'.$row->slug.'" data-original-title="Delete" class="btn btn-danger btn-sm deleteCategory">Delete</a>';
+    
+                            return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
         }
+      
         return view('backend.category.index');
     }
 
@@ -40,17 +50,15 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        Category::updateOrCreate(
-            [
-                'id' => $request->category_id
-            ],
-            [
-                'category' => $request->category,
-            ]
-        );
-        return response()->json(['success' => 'Category saved successfully.']);
+       try{
+            $this->categoryService->addServive($request->validated());
+            return response()->json(['success','Category added successfully']);
+       }catch(\Throwable $th){
+        return response()->json(['error','Something went wrong!']);
+        // return response()->json(['error',$th->getMessage()]);
+       }
     }
 
     /**
@@ -66,8 +74,7 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        $category = Category::find($id);
-        return response()->json($category);
+       
     }
 
     /**
@@ -83,7 +90,6 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        Category::find($id)->delete();
-        return response()->json(['success'=>'Category deleted successfully.']);
+       
     }
 }

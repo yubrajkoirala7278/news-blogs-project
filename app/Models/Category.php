@@ -9,5 +9,10 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable=['category'];
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
+    protected $fillable = ['category', 'slug'];
 }
