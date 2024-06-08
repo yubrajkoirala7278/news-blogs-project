@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\HomeController;
 use App\Http\Controllers\Admin\TagController;
@@ -10,4 +11,5 @@ Route::get('/home',[HomeController::class,'index'])->name('admin.home');
 Route::resources([
     'category'=>CategoryController::class,
     'tag'=>TagController::class,
+    'blog'=>BlogController::class,
 ]); 
