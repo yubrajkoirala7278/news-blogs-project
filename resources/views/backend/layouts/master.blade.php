@@ -143,7 +143,7 @@
             </li>
 
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#">
+                <a class="nav-link collapsed" href="{{route('tag.index')}}">
                     <i class="fa-solid fa-tags"></i>
                     <span>Tags</span>
                 </a>

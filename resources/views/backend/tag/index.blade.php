@@ -2,23 +2,23 @@
 @section('content')
     <div class="container p-4 bg-white">
         <div class="mb-4 d-flex justify-content-between align-items-center">
-            <h2 class="fw-semibold fs-4">Category</h2>
-            {{-- open create category modal --}}
-            <button type="button" class="btn btn-transparent text-success " data-bs-toggle="modal"
-                data-bs-target="#createCategory" id="create-category-btn">
+            <h2 class="fw-semibold fs-4">Tag</h2>
+            {{-- open create tag modal --}}
+            <button type="button" class="btn btn-transparent text-success " data-bs-toggle="modal" data-bs-target="#createTag"
+                id="create-tag-btn">
                 <i class="fa-solid fa-circle-plus fs-4"></i>
             </button>
         </div>
         {{-- create --}}
-        @include('backend.category.create')
+        @include('backend.tag.create')
 
 
-        {{-- display categories --}}
-        <table class="table table-bordered" id="category-table">
+        {{-- display tags --}}
+        <table class="table table-bordered" id="tag-table">
             <thead>
                 <tr>
                     <th>No</th>
-                    <th>Category</th>
+                    <th>Tag</th>
                     <th>Slug</th>
                     <th width="280px">Action</th>
                 </tr>
@@ -28,14 +28,17 @@
         </table>
 
 
-        {{-- edit category --}}
-        @include('backend.category.edit')
+        {{-- edit tag --}}
+        @include('backend.tag.edit')
     </div>
 @endsection
+
 
 @section('script')
     <script>
         $(document).ready(function() {
+
+
             // ======setup csrf token======
             $.ajaxSetup({
                 headers: {
@@ -55,32 +58,33 @@
 
 
             // ========adding data to db=========
-            $('#create-category-btn').click(function() {
-                $('#create-category-error').html('');
+            $('#create-tag-btn').click(function(e) {
+                $('#create-tag-error').html('');
                 $('#ajaxForm')[0].reset();
             });
 
             var createFormData = $('#ajaxForm')[0];
             $('#saveBtn').click(function() {
                 var formData = new FormData(createFormData);
-                $('#create-category-error').html('');
+                $('#create-tag-error').html('');
                 $.ajax({
-                    url: "{{ route('category.store') }}",
+                    url: "{{ route('tag.store') }}",
                     method: 'POST',
                     processData: false,
                     contentType: false,
                     data: formData,
 
                     success: function(response) {
-                        $('#createCategory').modal('hide');
+                        $('#createTag').modal('hide');
+                        console.log(response);
                         table.draw();
                         toastify().success(response[1]);
                     },
                     error: function(err) {
                         let errorMessage = err.responseJSON.errors;
                         if (errorMessage) {
-                            errorMessage.category ? $('#create-category-error').html(
-                                errorMessage.category[0]) : '';
+                            errorMessage.tag ? $('#create-tag-error').html(
+                                errorMessage.tag[0]) : '';
                         } else {
                             toastify().error('Something went wrong!');
                         }
@@ -89,21 +93,20 @@
             })
             // ==================================
 
-
-            // ==========Read Categories for DB==========
-            var table = $('#category-table').DataTable({
+            // ==========Read tags for DB==========
+            var table = $('#tag-table').DataTable({
                 processing: true,
                 serverSide: true,
                 deferRender: true,
                 searchDelay: 3000,
-                ajax: "{{ route('category.index') }}",
+                ajax: "{{ route('tag.index') }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'
                     },
                     {
-                        data: 'category',
-                        name: 'category'
+                        data: 'tag',
+                        name: 'tag'
                     },
                     {
                         data: 'slug',
@@ -119,14 +122,13 @@
             });
             // =======================================
 
-
-            // ================delete category=========
-            $('body').on('click', '.deleteCategory', function() {
-                var category_id = $(this).data("slug");
+            // ================delete tag=========
+            $('body').on('click', '.deleteTag', function() {
+                var tag_id = $(this).data("slug");
                 confirm("Are You sure want to delete !");
                 $.ajax({
                     type: "DELETE",
-                    url: "{{ url('admin/category/', '') }}" + '/' + category_id,
+                    url: "{{ url('admin/tag/', '') }}" + '/' + tag_id,
                     success: function(response) {
                         table.draw();
                         toastify().success(response[1]);
@@ -140,42 +142,42 @@
 
             // =============fill the current data to form for updation==========
             let slug = '';
-            $('body').on('click', '.editCategory', function() {
+            $('body').on('click', '.editTag', function() {
                 // get form slug
                 slug = $(this).data('slug');
-                $('#edit-category-error').html('');
+                $('#edit-tag-error').html('');
 
                 $.ajax({
-                    url: '{{ url('admin/category', '') }}' + '/' + slug + '/edit',
+                    url: '{{ url('admin/tag', '') }}' + '/' + slug + '/edit',
                     method: 'GET',
                     success: function(response) {
-                        console.log(response.category);
-                        $('#editCategory').modal('show');
-                        $('#edit-category').val(response.category);
+                        console.log(response.tag);
+                        $('#editTag').modal('show');
+                        $('#edit-tag').val(response.tag);
                     }
                 })
             })
             // ================================================================
 
-            // =================updating category=================
+            // =================updating tag=================
             var updateFormData = $('#ajaxFormUpdate')[0];
-            $('#updateBtn').click(function() {
+            $('#updateBtn').click(function(e) {
                 var formUpdateData = new FormData(updateFormData);
                 $.ajax({
-                    url: '{{ url('admin/category/', '') }}' + '/' + slug,
+                    url: '{{ url('admin/tag/', '') }}' + '/' + slug,
                     method: 'POST',
                     processData: false,
                     contentType: false,
                     data: formUpdateData,
                     success: function(response) {
-                        $('#editCategory').modal('hide');
+                        $('#editTag').modal('hide');
                         table.draw();
                     },
                     error: function(err) {
                         let errorMessage = err.responseJSON.errors;
                         if (errorMessage) {
-                            errorMessage.category ? $('#edit-category-error').html(
-                                errorMessage.category[0]) : '';
+                            errorMessage.tag ? $('#edit-tag-error').html(
+                                errorMessage.tag[0]) : '';
                         } else {
                             toastify().error('Something went wrong!');
                         }
