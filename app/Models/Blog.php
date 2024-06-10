@@ -9,6 +9,9 @@ class Blog extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['slug', 'title', 'description', 'is_published', 'user_id', 'category_id'];
+
+
     public function getRouteKeyName()
     {
         return 'slug';
@@ -24,5 +27,8 @@ class Blog extends Model
         return $this->belongsTo(Category::class);
     }
 
-    protected $fillable = ['slug', 'title', 'description', 'is_published', 'user_id', 'category_id'];
+    public function image()
+    {
+        return $this->morphOne(Image::class, 'model');
+    }
 }

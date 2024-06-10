@@ -5,17 +5,30 @@ namespace App\Service;
 use App\Models\Blog;
 
 
-class BlogService{
+class BlogService
+{
 
-    public function fetchBlogs(){
-        dd('fetch blogs');
+    private $imageservice;
+    public function __construct()
+    {
+        $this->imageservice = new ImageService();
     }
 
-    public function addService($request){
+    public function fetchBlogs()
+    {
+        $blogs=Blog::with('image')->latest()->get();
+        return $blogs;
+    }
+
+    public function addService($request)
+    {
         $slug = explode(' ', $request['title']);
         $request['slug'] = implode('-', $slug);
-        $request['user_id']=auth()->id();
-        dd($request);
-        Blog::create($request->except('image'));
+        $request['category_id'] = $request['category'];
+        $blog = Blog::create($request);
+        // if image exist
+        if (isset($request['image'])) {
+            $this->imageservice->saveImage($blog, $request['image'], 'blog');
+        }
     }
 }

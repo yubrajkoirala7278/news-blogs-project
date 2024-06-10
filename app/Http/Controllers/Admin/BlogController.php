@@ -21,7 +21,8 @@ class BlogController extends Controller
     public function index()
     {
         try {
-            return view('backend.blog.index');
+            $blogs=$this->blogService->fetchBlogs();
+            return view('backend.blog.index',compact('blogs'));
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
