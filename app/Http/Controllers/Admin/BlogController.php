@@ -3,20 +3,27 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\BlogRequest;
+use App\Models\Category;
+use App\Service\BlogService;
 use Illuminate\Http\Request;
 
 class BlogController extends Controller
 {
+    private $blogService;
+    public function __construct()
+    {
+        $this->blogService = new BlogService();
+    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        try{
+        try {
             return view('backend.blog.index');
-
-        }catch(\Throwable $th){
-            return back()->with('error',$th->getMessage());
+        } catch (\Throwable $th) {
+            return back()->with('error', $th->getMessage());
         }
     }
 
@@ -25,15 +32,25 @@ class BlogController extends Controller
      */
     public function create()
     {
-        //
+        try {
+            $categories=Category::latest()->get();
+            return view('backend.blog.create',compact('categories'));
+        } catch (\Throwable $th) {
+            return back()->with('error', $th->getMessage());
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(BlogRequest $request)
     {
-        //
+        try {
+            $this->blogService->addService($request->except('_token'));
+            return redirect()->route('blog.index')->with('success', 'Blog added successfully');
+        } catch (\Throwable $th) {
+            return back()->with('error', $th->getMessage());
+        }
     }
 
     /**
