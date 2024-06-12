@@ -13,3 +13,5 @@ Route::resources([
     'tag'=>TagController::class,
     'blog'=>BlogController::class,
 ]); 
+
+Route::put('blog-status/{blog}',[BlogController::class,'updateBlogStatus'])->name('blog.status.update');

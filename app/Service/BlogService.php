@@ -16,7 +16,7 @@ class BlogService
 
     public function fetchBlogs()
     {
-        $blogs=Blog::with('image')->latest()->get();
+        $blogs = Blog::with('image')->latest()->get();
         return $blogs;
     }
 

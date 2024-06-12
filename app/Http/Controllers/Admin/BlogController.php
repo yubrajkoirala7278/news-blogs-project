@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BlogRequest;
+use App\Models\Blog;
 use App\Models\Category;
 use App\Service\BlogService;
 use Illuminate\Http\Request;
@@ -21,8 +22,8 @@ class BlogController extends Controller
     public function index()
     {
         try {
-            $blogs=$this->blogService->fetchBlogs();
-            return view('backend.blog.index',compact('blogs'));
+            $blogs = $this->blogService->fetchBlogs();
+            return view('backend.blog.index', compact('blogs'));
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
@@ -34,8 +35,8 @@ class BlogController extends Controller
     public function create()
     {
         try {
-            $categories=Category::latest()->get();
-            return view('backend.blog.create',compact('categories'));
+            $categories = Category::latest()->get();
+            return view('backend.blog.create', compact('categories'));
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
@@ -81,8 +82,28 @@ class BlogController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Blog $blog)
     {
-        //
+        try {
+            $blog->delete();
+            return back()->with('success', 'Blog deleted successfully');
+        } catch (\Throwable $th) {
+            return back()->with('error', $th->getMessage());
+        }
+    }
+
+    public function updateBlogStatus(Request $request, Blog $blog)
+    {
+        try {
+            $blog->is_published = $request->is_published;
+            $blog->save();
+            return response()->json([
+                'success' => 'status updated successfully!'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'error' => $th->getMessage()
+            ]);
+        }
     }
 }

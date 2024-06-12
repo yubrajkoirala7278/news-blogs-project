@@ -68,7 +68,10 @@ class ImageService
     // Method to move and resize an image
     public function moveImage($image, $directory, $saveName, $width = 544, $height = 356)
     {
-        $image=$image->getClientOriginalName();
+        // Read and resize the image
+        $image = ImageManager::gd()->read($image);
+        $image = $image->resize($width, $height);
+        $image = $image->toWebp(70);
         // Store the image in the specified directory
         return Storage::put($directory . '/' . $saveName, $image, [
             'visibility' => 'public',

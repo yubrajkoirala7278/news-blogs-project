@@ -1210,3 +1210,6 @@ div.dataTables_wrapper div.dataTables_length select {
 #category-table_length,#category-table_filter,#tag-table_length,#tag-table_filter{
   margin-bottom: 20px;
 }
+#blog-status{
+  background-color: green ;
+}
