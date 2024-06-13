@@ -8,6 +8,7 @@ use App\Models\Blog;
 use App\Models\Category;
 use App\Service\BlogService;
 use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
 
 class BlogController extends Controller
 {
@@ -19,11 +20,25 @@ class BlogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $blogs = $this->blogService->fetchBlogs();
-            return view('backend.blog.index', compact('blogs'));
+            if ($request->ajax()) {
+                $data = $this->blogService->fetchBlogs();
+                return DataTables::of($data)
+                    ->addIndexColumn()
+                    ->addColumn('action', function ($row) {
+                        $editUrl = url('/admin/blog/' . $row->slug . '/edit');
+                        $deleteBtn = '<a href="javascript:void(0)" data-toggle="tooltip" data-slug="' . $row->slug . '" data-original-title="Delete" class="btn btn-danger btn-sm deleteBlog">Delete</a>';
+                        $btn = '<a href="' . $editUrl . '" data-toggle="tooltip" data-original-title="Edit" class="edit btn btn-primary btn-sm">Edit</a> ';
+                        $btn .= $deleteBtn;
+                        return $btn;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+
+            return view('backend.blog.index');
         } catch (\Throwable $th) {
             return back()->with('error', $th->getMessage());
         }
@@ -68,7 +83,7 @@ class BlogController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        return view('backend.blog.edit');
     }
 
     /**
@@ -94,6 +109,7 @@ class BlogController extends Controller
 
     public function updateBlogStatus(Request $request, Blog $blog)
     {
+        dd('i am here');
         try {
             $blog->is_published = $request->is_published;
             $blog->save();
